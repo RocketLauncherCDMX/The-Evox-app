@@ -27,17 +27,16 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  bloc: ^8.1.0
   cloud_firestore: ^3.5.1
   country_picker: ^2.0.16
   cupertino_icons: ^1.0.2
   firebase_auth: ^3.11.2
   firebase_core: ^1.24.0
+  google_sign_in: ^5.4.2
   flutter:
     sdk: flutter
-  flutter_bloc: ^8.1.1
-  fluttertoast: ^8.0.9
-  google_sign_in: ^5.4.2
+  equatable: ^2.0.5
+  hooks_riverpod: ^2.1.1
 
 dev_dependencies:
   flutter_lints: ^2.0.0

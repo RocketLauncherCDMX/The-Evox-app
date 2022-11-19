@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:the_evox_app/screens.dart';
+import 'package:the_evox_app/views/screens/screens.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
