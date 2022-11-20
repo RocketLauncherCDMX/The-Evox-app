@@ -4,13 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/user_profile_model.dart';
 
-class UserProfileProvider {
+class UserProfileRepository {
   final usersDb = FirebaseFirestore.instance.collection("users");
   bool status = false;
   String errorMessage = "";
   int? errorCode;
 
-  UserProfileProvider();
+  UserProfileRepository();
 
   /**
    * TODO: document possible errors (mabe just check fireb docs)

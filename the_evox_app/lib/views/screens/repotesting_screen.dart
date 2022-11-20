@@ -19,7 +19,7 @@ class RepotestingScreen extends StatefulWidget {
 
 class _RepotestingScreenState extends State<RepotestingScreen> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final UserProfileProvider _userProvider = UserProfileProvider();
+  final UserProfileRepository _userProvider = UserProfileRepository();
   UserProfile? signedProfile;
 
   _RepotestingScreenState() {
