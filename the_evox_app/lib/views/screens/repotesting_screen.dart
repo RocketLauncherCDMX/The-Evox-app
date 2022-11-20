@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'package:the_evox_app/repositories/user_profile_provider.dart';
+import 'package:the_evox_app/repositories/user_profile_repository.dart';
 
 import 'package:the_evox_app/models/authorization_model.dart';
 import 'package:the_evox_app/models/device_model.dart';
