@@ -27,16 +27,18 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  cloud_firestore: ^3.5.1
-  country_picker: ^2.0.16
-  cupertino_icons: ^1.0.2
-  firebase_auth: ^3.11.2
-  firebase_core: ^1.24.0
-  google_sign_in: ^5.4.2
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.2
+
+  country_picker: ^2.0.16
   equatable: ^2.0.5
   hooks_riverpod: ^2.1.1
+  
+  firebase_auth: ^4.1.1
+  firebase_core: ^2.2.0
+  cloud_firestore: ^4.0.4
+  google_sign_in: ^5.4.2
 
 dev_dependencies:
   flutter_lints: ^2.0.0
@@ -57,7 +59,6 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/widgets/
     - assets/countries/
     # An image asset can refer to one or more resolution-specific "variants", see
     # https://flutter.dev/assets-and-images/#resolution-aware
