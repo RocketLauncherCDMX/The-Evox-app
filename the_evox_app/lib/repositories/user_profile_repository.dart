@@ -5,12 +5,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_profile_model.dart';
 
 class UserProfileRepository {
-  final usersDb = FirebaseFirestore.instance.collection("users");
+  late CollectionReference dbUsersCollection;
+
   bool status = false;
   String errorMessage = "";
   int? errorCode;
 
-  UserProfileRepository();
+  UserProfileRepository() {
+    dbUsersCollection = FirebaseFirestore.instance.collection("users");
+  }
 
   /**
    * TODO: document possible errors (mabe just check fireb docs)
@@ -19,13 +22,13 @@ class UserProfileRepository {
   Future<String?> createUserProfile(UserProfile newProfileData) async {
     String? docCreated = "";
     try {
-      usersDb
+      dbUsersCollection
           .add(newProfileData.toFirestore())
           .then((DocumentReference doc) => {docCreated = doc.id});
-      _setDataProviderState(true, "", 1);
+      _setRepositoryState(true, "", 1);
     } on FirebaseException catch (e) {
       docCreated = null;
-      _setDataProviderState(
+      _setRepositoryState(
           false, "FIREBASE ERROR: ${e.message!.toLowerCase()}", 400);
     }
     return docCreated;
@@ -34,7 +37,7 @@ class UserProfileRepository {
   Future<UserProfile?> getUserProfileByAuthId(String userAuthId) async {
     UserProfile? profileData;
     try {
-      final docSnap = await usersDb
+      final docSnap = await dbUsersCollection
           .where("userId", isEqualTo: userAuthId)
           .withConverter(
             fromFirestore: UserProfile.fromFirestore,
@@ -46,15 +49,15 @@ class UserProfileRepository {
         //A profile was found in db for the user authenticated
         profileData = docSnap.docs.first.data();
         profileData.profileDocId = docSnap.docs.first.id;
-        _setDataProviderState(true, "", 1);
+        _setRepositoryState(true, "", 1);
       } else {
         //There isnt a profile in db that matches with userAuthId
         profileData = null;
-        _setDataProviderState(false, "No matching profile for userAuthId", 404);
+        _setRepositoryState(false, "No matching profile for userAuthId", 404);
       }
     } on FirebaseException catch (e) {
       profileData = null;
-      _setDataProviderState(
+      _setRepositoryState(
           false, "FIREBASE CONN ERROR: ${e.message!.toLowerCase()}", 0);
     }
     return profileData;
@@ -64,7 +67,7 @@ class UserProfileRepository {
       UserProfile udProfile) async {
     final DateTime modificationTimestamp = DateTime.now();
     try {
-      usersDb.doc(udProfile.profileDocId).update({
+      dbUsersCollection.doc(udProfile.profileDocId).update({
         "name": udProfile.name,
         "email": udProfile.email,
         "photo": udProfile.photo,
@@ -72,9 +75,9 @@ class UserProfileRepository {
         "modified": modificationTimestamp,
       });
       udProfile.modified = modificationTimestamp;
-      _setDataProviderState(true, "", 1);
+      _setRepositoryState(true, "", 1);
     } on FirebaseException catch (e) {
-      _setDataProviderState(
+      _setRepositoryState(
           false, "FIREBASE ERROR: ${e.message!.toLowerCase()}", 0);
     }
     return udProfile;
@@ -82,15 +85,15 @@ class UserProfileRepository {
 
   Future<bool> deleteUserProfile(String docProfileId) async {
     try {
-      await usersDb
+      await dbUsersCollection
           .doc(docProfileId)
           .delete()
           .then((value) => print("User profile deleted"))
           .catchError((error) => print("Failed to delete user: $error"));
-      _setDataProviderState(true, "", 1);
+      _setRepositoryState(true, "", 1);
       return true;
     } on FirebaseException catch (e) {
-      _setDataProviderState(
+      _setRepositoryState(
           false, "FIREBASE ERROR: ${e.message!.toLowerCase()}", 0);
       return false;
     }
@@ -100,7 +103,7 @@ class UserProfileRepository {
 //This 'provider state setter' method must be used before every
 //posible result of each method ends
 //* @param _status true for success on method, false for fail on method
-  void _setDataProviderState(
+  void _setRepositoryState(
       bool _status, String _errorMessage, int? _errorCode) {
     status = _status;
     errorMessage = _errorMessage;
