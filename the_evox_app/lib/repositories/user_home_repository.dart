@@ -20,25 +20,28 @@ class UserHomeRepository {
         FirebaseFirestore.instance.collection('users').doc(userProfileDocId);
   }
 
-  bool createHomeForUser(HomeModel newHomeData) {
-    try {
-      dbUsrProfileDoc?.set({
-        "name": newHomeData.name,
-      });
+  //If update succeed returns the timestamp of update, otherwise returns null
+  DateTime? createHomeForUser(HomeModel newHomeData) {
+    List<HomeModel> homeArranged = List.empty();
+    DateTime currentDt = DateTime.now();
 
-      if (true) {
-        return true;
-      } else {
-        return false;
-      }
+    homeArranged.add(newHomeData);
+
+    try {
+      dbUsrProfileDoc?.update({
+        "homes": FieldValue.arrayUnion(homeArranged),
+        "modified": currentDt
+      });
+      _setRepositoryState(true, "", 0);
+      return currentDt;
     } on FirebaseException catch (e) {
-      _setRepositoryState(false, "FIREBASE ERROR: ${e.message!.toString()}", 0);
-      return false;
+      _setRepositoryState(false, "FIREBASE ERROR: ${e.message!.toString()}", 1);
+      return null;
     }
   }
 
 // ignore_for_file: no_leading_underscores_for_local_identifiers
-//This 'provider state setter' method must be used before every
+//This 'repository state setter' method must be used before every
 //posible result of each method ends
 //* @param _status true for success on method, false for fail on method
   void _setRepositoryState(

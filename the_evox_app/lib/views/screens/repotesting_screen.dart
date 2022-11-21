@@ -264,7 +264,7 @@ class _RepotestingScreenState extends State<RepotestingScreen> {
                           DateTime previousUpdate = signedProfile!.modified!;
                           try {
                             signedProfile = await _userProvider
-                                .updateUserProfilePersonalInfo(signedProfile!);
+                                .updateUserProfile(signedProfile!);
                             if (_userProvider.status) {
                               print(
                                   "User updated at: ${signedProfile!.modified.toString()}, previous update in: ${previousUpdate.toString()}");

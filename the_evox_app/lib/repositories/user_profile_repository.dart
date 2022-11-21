@@ -20,12 +20,15 @@ class UserProfileRepository {
    */
 
   Future<String?> createUserProfile(UserProfile newProfileData) async {
+    DateTime currentDt = DateTime.now();
     String? docCreated = "";
     try {
+      newProfileData.created = currentDt;
+      newProfileData.modified = currentDt;
       dbUsersCollection
           .add(newProfileData.toFirestore())
           .then((DocumentReference doc) => {docCreated = doc.id});
-      _setRepositoryState(true, "", 1);
+      _setRepositoryState(true, "", 0);
     } on FirebaseException catch (e) {
       docCreated = null;
       _setRepositoryState(
@@ -49,7 +52,7 @@ class UserProfileRepository {
         //A profile was found in db for the user authenticated
         profileData = docSnap.docs.first.data();
         profileData.profileDocId = docSnap.docs.first.id;
-        _setRepositoryState(true, "", 1);
+        _setRepositoryState(true, "", 0);
       } else {
         //There isnt a profile in db that matches with userAuthId
         profileData = null;
@@ -58,13 +61,12 @@ class UserProfileRepository {
     } on FirebaseException catch (e) {
       profileData = null;
       _setRepositoryState(
-          false, "FIREBASE CONN ERROR: ${e.message!.toLowerCase()}", 0);
+          false, "FIREBASE CONN ERROR: ${e.message!.toLowerCase()}", 1);
     }
     return profileData;
   }
 
-  Future<UserProfile>? updateUserProfilePersonalInfo(
-      UserProfile udProfile) async {
+  Future<UserProfile>? updateUserProfile(UserProfile udProfile) async {
     final DateTime modificationTimestamp = DateTime.now();
     try {
       dbUsersCollection.doc(udProfile.profileDocId).update({
@@ -78,7 +80,7 @@ class UserProfileRepository {
       _setRepositoryState(true, "", 1);
     } on FirebaseException catch (e) {
       _setRepositoryState(
-          false, "FIREBASE ERROR: ${e.message!.toLowerCase()}", 0);
+          false, "FIREBASE ERROR: ${e.message!.toLowerCase()}", 1);
     }
     return udProfile;
   }
@@ -90,17 +92,17 @@ class UserProfileRepository {
           .delete()
           .then((value) => print("User profile deleted"))
           .catchError((error) => print("Failed to delete user: $error"));
-      _setRepositoryState(true, "", 1);
+      _setRepositoryState(true, "", 0);
       return true;
     } on FirebaseException catch (e) {
       _setRepositoryState(
-          false, "FIREBASE ERROR: ${e.message!.toLowerCase()}", 0);
+          false, "FIREBASE ERROR: ${e.message!.toLowerCase()}", 1);
       return false;
     }
   }
 
 // ignore_for_file: no_leading_underscores_for_local_identifiers
-//This 'provider state setter' method must be used before every
+//This 'repository state setter' method must be used before every
 //posible result of each method ends
 //* @param _status true for success on method, false for fail on method
   void _setRepositoryState(
