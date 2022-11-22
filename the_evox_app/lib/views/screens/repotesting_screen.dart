@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:the_evox_app/repositories/user_profile_repository.dart';
+import 'package:the_evox_app/repositories/user_home_repository.dart';
 
 import 'package:the_evox_app/models/authorization_model.dart';
 import 'package:the_evox_app/models/device_model.dart';
@@ -19,7 +20,8 @@ class RepotestingScreen extends StatefulWidget {
 
 class _RepotestingScreenState extends State<RepotestingScreen> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final UserProfileRepository _userProvider = UserProfileRepository();
+  final UserProfileRepository _userRepository = UserProfileRepository();
+  UserHomeRepository? _homeRepository;
   UserProfile? signedProfile;
 
   _RepotestingScreenState() {
@@ -39,391 +41,441 @@ class _RepotestingScreenState extends State<RepotestingScreen> {
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Center(
-              child: Column(children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: StreamBuilder<User?>(
-                    stream: _firebaseAuth.authStateChanges(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text("...");
-                      } else if (snapshot.hasError) {
-                        return Text("Error: ${snapshot.error}");
-                      } else if (snapshot.hasData) {
-                        return const Text("Loggeado");
-                      } else {
-                        return const Text("No loggeado");
-                      }
-                    },
-                  ),
-                ),
-                /********** INSERT TEST **********/
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.blueGrey.shade400)),
-                      child: const Text("Inserting Test"),
-                      onPressed: () async {
-                        /** Create not user-binded filled profile in db */
-                        if (await _userProvider.createUserProfile(
-                                _createTestFilledProfile()) !=
-                            null) {
-                          print("PROFILE CREATED");
+              child: SingleChildScrollView(
+                child: Column(children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: StreamBuilder<User?>(
+                      stream: _firebaseAuth.authStateChanges(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Text("...");
+                        } else if (snapshot.hasError) {
+                          return Text("Error: ${snapshot.error}");
+                        } else if (snapshot.hasData) {
+                          return const Text("Loggeado");
                         } else {
-                          print("ERROR: ${_userProvider.errorMessage}");
+                          return const Text("No loggeado");
                         }
                       },
                     ),
                   ),
-                ),
-                //END BUTTON COMPONENT
-                /********** INSERT TEST **********/
-                /********** EMAIL PASS **********/
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.lightGreen.shade300)),
-                      child: const Text("Email SignUp"),
-                      onPressed: () async {
-                        if (signedProfile == null) {
-                          /** If THERE ISNT a user profile object created
-                           * then proceed to signin intend */
-                          try {
-                            /** Make sign up intend with email and password */
-                            UserCredential userSigned = await _firebaseAuth
-                                .createUserWithEmailAndPassword(
-                                    email: 'jorgegarcia@gmail.com',
-                                    password: "12345678");
+                  /********** INSERT TEST **********/
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.grey.shade400)),
+                        child: const Text("Inserting Test"),
+                        onPressed: () async {
+                          /** Create not user-binded filled profile in db */
+                          if (await _userRepository.createUserProfile(
+                                  _createTestFilledProfile()) !=
+                              null) {
+                            print("PROFILE CREATED");
+                          } else {
+                            print("ERROR: ${_userRepository.errorMessage}");
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  //END BUTTON COMPONENT
+                  /********** INSERT TEST **********/
+                  /********** EMAIL PASS **********/
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.lightGreen.shade300)),
+                        child: const Text("Email SignUp"),
+                        onPressed: () async {
+                          if (signedProfile == null) {
+                            /** If THERE ISNT a user profile object created
+                             * then proceed to signin intend */
+                            try {
+                              /** Make sign up intend with email and password */
+                              UserCredential userSigned = await _firebaseAuth
+                                  .createUserWithEmailAndPassword(
+                                      email: 'jorgegarcia@gmail.com',
+                                      password: "12345678");
 
-                            /** If no error throwned
-                             * get user info from credential */
-                            User? newUserInfo = userSigned.user;
+                              /** If no error throwned
+                               * get user info from credential */
+                              User? newUserInfo = userSigned.user;
 
-                            /** Create a test filled up object user profile
-                             * binded to user authenticated */
-                            UserProfile newUserProfile =
-                                _createTestFilledProfile(
-                                    testName:
-                                        newUserInfo!.displayName.toString(),
-                                    testAuthId: newUserInfo.uid);
+                              /** Create a test filled up object user profile
+                               * binded to user authenticated */
+                              UserProfile newUserProfile =
+                                  _createTestFilledProfile(
+                                      testName:
+                                          newUserInfo!.displayName.toString(),
+                                      testAuthId: newUserInfo.uid);
 
-                            /** Create a user profile in DB from previous filledup
-                             * object and stores the ID of created db doc */
-                            newUserProfile.profileDocId = await _userProvider
-                                .createUserProfile(newUserProfile);
-                            if (_userProvider.status) {
-                              /** If Status indicator is true means that profile
-                                 * was successfully created and stores
-                                 * the locally created profile in global var */
-                              signedProfile = newUserProfile;
-                            } else {
-                              print(_userProvider.errorMessage);
+                              /** Create a user profile in DB from previous filledup
+                               * object and stores the ID of created db doc */
+                              newUserProfile.profileDocId =
+                                  await _userRepository
+                                      .createUserProfile(newUserProfile);
+                              if (_userRepository.status) {
+                                /** If Status indicator is true means that profile
+                                   * was successfully created and stores
+                                   * the locally created profile in global var */
+                                signedProfile = newUserProfile;
+                                _homeRepository = UserHomeRepository(
+                                    userProfileDocId:
+                                        signedProfile!.profileDocId!);
+                              } else {
+                                print(_userRepository.errorMessage);
+                              }
+                            } on FirebaseAuthException catch (e) {
+                              print("error: ${e.message}");
                             }
+                          } else {
+                            /** If THERE IS a user profile object then means that user was logged in */
+                            print("User is already logged!!");
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  //END BUTTON COMPONENT
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.lightGreen.shade300)),
+                        child: const Text("Email SignIn"),
+                        onPressed: () async {
+                          if (signedProfile == null) {
+                            /** If THERE ISNT a user profile object created
+                             * then proceed to signin intend */
+                            try {
+                              /** Perform login with email and password
+                               * expecting for user credential
+                               */
+                              UserCredential userSigned = await _firebaseAuth
+                                  .signInWithEmailAndPassword(
+                                      email: 'jorgegarcia@gmail.com',
+                                      password: "12345678");
+
+                              /** Trying to retrive the profile from DB using
+                               * user authenticated ID */
+                              signedProfile =
+                                  await _userRepository.getUserProfileByAuthId(
+                                      userSigned.user!.uid.toString());
+
+                              if (_userRepository.status) {
+                                /** If retriving user profile from DB SUCCEEDS*/
+                                print("User signed: ${signedProfile!.name}");
+                                print(signedProfile);
+                                _homeRepository = UserHomeRepository(
+                                    userProfileDocId:
+                                        signedProfile!.profileDocId!);
+                              } else {
+                                /** If retriving user profile from DB FAILS*/
+                                if (_userRepository.errorCode == 404) {
+                                  /** If no Exception throwned (just profile not found)
+                                  * create one getting user info from credential */
+                                  print(
+                                      'USER WARNING: User profile no found in DB starting profile creation');
+                                  User? newUserInfo = userSigned.user;
+
+                                  /** Create a test filled up object user profile
+                                   * binded to user authenticated */
+                                  UserProfile newUserProfile =
+                                      _createTestFilledProfile(
+                                          testName: newUserInfo!.displayName
+                                              .toString(),
+                                          testAuthId: newUserInfo.uid);
+
+                                  /** Create a user profile in DB from previous filledup
+                                   * object and stores the ID of created db doc */
+                                  newUserProfile.profileDocId =
+                                      await _userRepository
+                                          .createUserProfile(newUserProfile);
+                                  if (_userRepository.status) {
+                                    /** If Status indicator is true means that profile
+                                       * was successfully created and stores
+                                       * the locally created profile in global var */
+                                    print(
+                                        "User profile created for: ${newUserProfile.name}");
+                                    signedProfile = newUserProfile;
+                                    _homeRepository = UserHomeRepository(
+                                        userProfileDocId:
+                                            signedProfile!.profileDocId!);
+                                  } else {
+                                    print(_userRepository.errorMessage);
+                                  }
+                                } else {
+                                  print(
+                                      "ERROR USERPROFILEPROVIDER: ${_userRepository.errorMessage}");
+                                }
+                              }
+                            } on FirebaseAuthException catch (e) {
+                              print("AUTH ERROR: ${e.message}");
+                            }
+                          } else {
+                            /** If THERE IS a user profile object then means that user was logged in */
+                            print("User is already logged!!");
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  //END BUTTON COMPONENT
+                  /********** EMAIL PASS **********/
+                  /********** USER PROFILE OPPERATIONS **********/
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.blueGrey.shade500)),
+                        child: const Text("Update User"),
+                        onPressed: () async {
+                          if (signedProfile != null) {
+                            DateTime previousUpdate = signedProfile!.modified!;
+                            try {
+                              signedProfile = await _userRepository
+                                  .updateUserProfile(signedProfile!);
+                              if (_userRepository.status) {
+                                print(
+                                    "User updated at: ${signedProfile!.modified.toString()}, previous update in: ${previousUpdate.toString()}");
+                              } else {
+                                print(
+                                    "ERROR USERPROFILEPROVIDER:${_userRepository.errorMessage}");
+                              }
+                            } on Exception catch (e) {
+                              print("Error: ${e.toString()}");
+                            }
+                          } else {
+                            print("Logged user not found");
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  //END BUTTON COMPONENT
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.blueGrey.shade300)),
+                        child: const Text("Add home"),
+                        onPressed: () async {
+                          /**
+                           * TODO: generar uid para la nueva casa
+                          HomeModel newHome = HomeModel(homeId: homeId, name: name, location: location, images: images, rooms: rooms)
+                          */
+                          if (signedProfile != null &&
+                              _homeRepository != null) {
+                            try {
+                              if (await _userRepository.deleteUserProfile(
+                                  signedProfile!.profileDocId!)) {
+                                print("User profile successfully deleted.");
+                                /**
+                                 * ! Delete account from Auth DB before trigger logout
+                                 */
+                                _firebaseAuth.signOut();
+                              } else {
+                                print(
+                                    "ERROR USERPROFILEPROVIDER:${_userRepository.errorMessage}");
+                              }
+                            } on Exception catch (e) {
+                              print("Error: ${e.toString()}");
+                            }
+                          } else {
+                            print("Logged user not found");
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  //END BUTTON COMPONENT
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.blueGrey.shade500)),
+                        child: const Text("Delete profile"),
+                        onPressed: () async {
+                          if (signedProfile != null) {
+                            try {
+                              if (await _userRepository.deleteUserProfile(
+                                  signedProfile!.profileDocId!)) {
+                                print("User profile successfully deleted.");
+                                _firebaseAuth.signOut();
+                                signedProfile = null;
+                                _homeRepository = null;
+                              } else {
+                                print(
+                                    "ERROR USERPROFILEPROVIDER:${_userRepository.errorMessage}");
+                              }
+                            } on Exception catch (e) {
+                              print("Error: ${e.toString()}");
+                            }
+                          } else {
+                            print("Logged user not found");
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  //END BUTTON COMPONENT
+                  /********** USER PROFILE OPERATIONS **********/
+                  /********** GOOGLE **********/
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.red.shade500)),
+                        child: const Text("Google SignUp"),
+                        onPressed: () async {
+                          try {
+                            // Trigger the authentication flow
+                            GoogleSignInAccount? googleUser =
+                                await GoogleSignIn().signIn();
+
+                            // Obtain the auth details from the request
+                            GoogleSignInAuthentication? googleAuth =
+                                await googleUser?.authentication;
+
+                            // Create a new credential
+                            var credential = GoogleAuthProvider.credential(
+                              accessToken: googleAuth?.accessToken,
+                              idToken: googleAuth?.idToken,
+                            );
+
+                            UserCredential newGoogleUser = await _firebaseAuth
+                                .signInWithCredential(credential);
                           } on FirebaseAuthException catch (e) {
                             print("error: ${e.message}");
                           }
-                        } else {
-                          /** If THERE IS a user profile object then means that user was logged in */
-                          print("User is already logged!!");
-                        }
-                      },
+                        },
+                      ),
                     ),
                   ),
-                ),
-                //END BUTTON COMPONENT
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.lightGreen.shade300)),
-                      child: const Text("Email SignIn"),
-                      onPressed: () async {
-                        if (signedProfile == null) {
-                          /** If THERE ISNT a user profile object created
-                           * then proceed to signin intend */
+                  //END BUTTON COMPONENT
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.red.shade500)),
+                        child: const Text("Google SignIn"),
+                        onPressed: () async {
                           try {
-                            /** Perform login with email and password
-                             * expecting for user credential
-                             */
-                            UserCredential userSigned =
+                            UserCredential userGoogleSigned =
                                 await _firebaseAuth.signInWithEmailAndPassword(
                                     email: 'jorgegarcia@gmail.com',
                                     password: "12345678");
-
-                            /** Trying to retrive the profile from DB using
-                             * user authenticated ID */
-                            signedProfile =
-                                await _userProvider.getUserProfileByAuthId(
-                                    userSigned.user!.uid.toString());
-
-                            if (_userProvider.status) {
-                              /** If retriving user profile from DB SUCCEEDS*/
-                              print("User signed: ${signedProfile!.name}");
-                              print(signedProfile);
-                            } else {
-                              /** If retriving user profile from DB FAILS*/
-                              if (_userProvider.errorCode == 404) {
-                                /** If no Exception throwned (just profile not found)
-                                * create one getting user info from credential */
-                                print(
-                                    'USER WARNING: User profile no found in DB starting profile creation');
-                                User? newUserInfo = userSigned.user;
-
-                                /** Create a test filled up object user profile
-                                 * binded to user authenticated */
-                                UserProfile newUserProfile =
-                                    _createTestFilledProfile(
-                                        testName:
-                                            newUserInfo!.displayName.toString(),
-                                        testAuthId: newUserInfo.uid);
-
-                                /** Create a user profile in DB from previous filledup
-                                 * object and stores the ID of created db doc */
-                                newUserProfile.profileDocId =
-                                    await _userProvider
-                                        .createUserProfile(newUserProfile);
-                                if (_userProvider.status) {
-                                  /** If Status indicator is true means that profile
-                                     * was successfully created and stores
-                                     * the locally created profile in global var */
-                                  print(
-                                      "User profile created for: ${newUserProfile.name}");
-                                  signedProfile = newUserProfile;
-                                } else {
-                                  print(_userProvider.errorMessage);
-                                }
-                              } else {
-                                print(
-                                    "ERROR USERPROFILEPROVIDER: ${_userProvider.errorMessage}");
-                              }
-                            }
                           } on FirebaseAuthException catch (e) {
-                            print("AUTH ERROR: ${e.message}");
+                            print("error: ${e.message}");
                           }
-                        } else {
-                          /** If THERE IS a user profile object then means that user was logged in */
-                          print("User is already logged!!");
-                        }
-                      },
+                        },
+                      ),
                     ),
                   ),
-                ),
-                //END BUTTON COMPONENT
-                /********** EMAIL PASS **********/
-                /********** USER PROFILE OPPERATIONS **********/
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.blueGrey.shade400)),
-                      child: const Text("Update User"),
-                      onPressed: () async {
-                        if (signedProfile != null) {
-                          DateTime previousUpdate = signedProfile!.modified!;
-                          try {
-                            signedProfile = await _userProvider
-                                .updateUserProfile(signedProfile!);
-                            if (_userProvider.status) {
-                              print(
-                                  "User updated at: ${signedProfile!.modified.toString()}, previous update in: ${previousUpdate.toString()}");
-                            } else {
-                              print(
-                                  "ERROR USERPROFILEPROVIDER:${_userProvider.errorMessage}");
-                            }
-                          } on Exception catch (e) {
-                            print("Error: ${e.toString()}");
-                          }
-                        } else {
-                          print("Logged user not found");
-                        }
-                      },
+                  //END BUTTON COMPONENT
+                  /********** GOOGLE **********/
+                  //BUTTON COMPONENT
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SizedBox(
+                      height: 50,
+                      width: 150,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            )),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.black)),
+                        child: const Text("SignOut"),
+                        onPressed: () {
+                          _firebaseAuth.signOut();
+                          _homeRepository = null;
+                          signedProfile = null;
+                        },
+                      ),
                     ),
                   ),
-                ),
-                //END BUTTON COMPONENT
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.blueGrey.shade400)),
-                      child: const Text("Delete profile"),
-                      onPressed: () async {
-                        if (signedProfile != null) {
-                          try {
-                            if (await _userProvider.deleteUserProfile(
-                                signedProfile!.profileDocId!)) {
-                              print("User profile successfully deleted.");
-                              /**
-                               * ! Delete account from Auth DB before trigger logout
-                               */
-                              _firebaseAuth.signOut();
-                            } else {
-                              print(
-                                  "ERROR USERPROFILEPROVIDER:${_userProvider.errorMessage}");
-                            }
-                          } on Exception catch (e) {
-                            print("Error: ${e.toString()}");
-                          }
-                        } else {
-                          print("Logged user not found");
-                        }
-                      },
-                    ),
-                  ),
-                ),
-                //END BUTTON COMPONENT
-                /********** USER PROFILE OPERATIONS **********/
-                /********** GOOGLE **********/
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.red.shade500)),
-                      child: const Text("Google SignUp"),
-                      onPressed: () async {
-                        try {
-                          // Trigger the authentication flow
-                          GoogleSignInAccount? googleUser =
-                              await GoogleSignIn().signIn();
-
-                          // Obtain the auth details from the request
-                          GoogleSignInAuthentication? googleAuth =
-                              await googleUser?.authentication;
-
-                          // Create a new credential
-                          var credential = GoogleAuthProvider.credential(
-                            accessToken: googleAuth?.accessToken,
-                            idToken: googleAuth?.idToken,
-                          );
-
-                          UserCredential newGoogleUser = await _firebaseAuth
-                              .signInWithCredential(credential);
-                        } on FirebaseAuthException catch (e) {
-                          print("error: ${e.message}");
-                        }
-                      },
-                    ),
-                  ),
-                ),
-                //END BUTTON COMPONENT
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.red.shade500)),
-                      child: const Text("Google SignIn"),
-                      onPressed: () async {
-                        try {
-                          UserCredential userGoogleSigned =
-                              await _firebaseAuth.signInWithEmailAndPassword(
-                                  email: 'jorgegarcia@gmail.com',
-                                  password: "12345678");
-                        } on FirebaseAuthException catch (e) {
-                          print("error: ${e.message}");
-                        }
-                      },
-                    ),
-                  ),
-                ),
-                //END BUTTON COMPONENT
-                /********** GOOGLE **********/
-                //BUTTON COMPONENT
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: 50,
-                    width: 150,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          )),
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black)),
-                      child: const Text("SignOut"),
-                      onPressed: () {
-                        signedProfile = null;
-                        _firebaseAuth.signOut();
-                      },
-                    ),
-                  ),
-                ),
-                //END BUTTON COMPONENT
-              ]),
+                  //END BUTTON COMPONENT
+                ]),
+              ),
             ),
           ),
         ),

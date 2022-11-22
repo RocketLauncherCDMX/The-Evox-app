@@ -20,12 +20,30 @@ class UserHomeRepository {
         FirebaseFirestore.instance.collection('users').doc(userProfileDocId);
   }
 
-  //If update succeed returns the timestamp of update, otherwise returns null
+  //If insert succeed returns the timestamp of insertion, otherwise returns null
   DateTime? createHomeForUser(HomeModel newHomeData) {
     List<HomeModel> homeArranged = List.empty();
     DateTime currentDt = DateTime.now();
 
     homeArranged.add(newHomeData);
+
+    try {
+      dbUsrProfileDoc?.update({
+        "homes": FieldValue.arrayUnion(homeArranged),
+        "modified": currentDt
+      });
+      _setRepositoryState(true, "", 0);
+      return currentDt;
+    } on FirebaseException catch (e) {
+      _setRepositoryState(false, "FIREBASE ERROR: ${e.message!.toString()}", 1);
+      return null;
+    }
+  }
+
+  //If user
+  DateTime? updateHomeForUser(HomeModel modifiedHomeData) {
+    List<HomeModel> homeArranged = List.empty();
+    DateTime currentDt = DateTime.now();
 
     try {
       dbUsrProfileDoc?.update({

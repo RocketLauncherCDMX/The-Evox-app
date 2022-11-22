@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:the_evox_app/views/screens/repotesting_screen.dart';
 import 'package:the_evox_app/views/screens/screens.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:the_evox_app/views/auth_checker.dart';
@@ -18,7 +19,7 @@ class TheEvox extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'The Evox',
-        home: const AuthChecker(),
+        home: const RepotestingScreen(),
         routes: {
           'login': (_) => const LoginForm(),
           'register': (_) => const RegisterForm(),
