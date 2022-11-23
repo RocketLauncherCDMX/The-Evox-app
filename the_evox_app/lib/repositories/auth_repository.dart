@@ -3,13 +3,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthRepository {
-  const AuthRepository(this._auth, this._googleSignIn);
+import '../models/user_profile_model.dart';
 
+class AuthRepository {
   final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
+  late UserProfile userProfileData;
 
   Stream<User?> get authStateChange => _auth.idTokenChanges();
+
+  AuthRepository(this._auth, this._googleSignIn);
 
   Future<User?> signInWithEmailAndPassword(
       String email, String password) async {
