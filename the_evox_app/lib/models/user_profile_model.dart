@@ -16,7 +16,7 @@ class UserProfile {
   final List<HomeModel>? homes;
   final List<AuthorizationModel>? authorizations;
   final List<String>? invites;
-  final DateTime? created;
+  late DateTime? created;
   late DateTime? modified;
   final bool? verified;
   late String? profileDocId;
