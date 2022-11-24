@@ -19,7 +19,7 @@ class TheEvox extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'The Evox',
-        home: const LoginForm(),
+        home: const TestingrepoScreen(),
         routes: {
           'login': (_) => const LoginForm(),
           'register': (_) => const RegisterForm(),

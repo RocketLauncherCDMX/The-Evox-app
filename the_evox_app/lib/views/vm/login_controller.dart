@@ -1,8 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_evox_app/models/user_profile_model.dart';
-import 'package:the_evox_app/repositories/auth_repository.dart';
-import 'package:the_evox_app/repositories/user_profile_repository.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import 'login_state.dart';
 
@@ -23,44 +19,14 @@ class LoginController extends StateNotifier<LoginState> {
     }
   }
 
-  Future<User?> loginWithGoogle() async {
+  void loginWithGoogle() async {
     state = const LoginStateLoading();
     try {
-      final signedUser =
-          await ref.read(authRepositoryProvider).signInWithGoogle();
-
-      UserProfileRepository profileProvider = UserProfileRepository();
-      UserProfile? signedProfile = await profileProvider
-          .getUserProfileByAuthId(signedUser!.uid.toString());
-
-      if (profileProvider.status == true) {
-        //user has profile
-
-      } else {
-        UserProfile newUserProfile = UserProfile(
-            userId: signedUser.uid,
-            name: signedUser.displayName.toString(),
-            email: signedUser.email.toString(),
-            photo: signedUser.photoURL.toString(),
-            countryCode: null,
-            verified: true);
-        newUserProfile.profileDocId =
-            await profileProvider.createUserProfile(newUserProfile);
-
-        if (profileProvider.status == true) {
-          signedProfile = newUserProfile;
-        } else {
-          // Error
-          print(profileProvider.errorMessage);
-        }
-      }
-
+      await ref.read(authRepositoryProvider).signInWithGoogle();
       state = const LoginStateSuccess();
     } catch (e) {
       state = LoginStateError(e.toString());
-      print(state);
     }
-    return null;
   }
 }
 
