@@ -14,9 +14,6 @@ import 'package:the_evox_app/models/home_model.dart';
 import 'package:the_evox_app/models/room_model.dart';
 import 'package:the_evox_app/models/user_profile_model.dart';
 
-part 'testingrepo_widgets/user_home_buttons_widget.dart';
-part 'testingrepo_widgets/user_profile_buttons_widget.dart';
-
 class TestingrepoScreen extends StatefulWidget {
   const TestingrepoScreen({Key? key}) : super(key: key);
 
