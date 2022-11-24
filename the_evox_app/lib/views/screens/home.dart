@@ -1,18 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:the_evox_app/providers/auth_provider.dart';
 import 'package:the_evox_app/views/screens/add_room.dart';
 
 // ignore: must_be_immutable
-class MyHome extends ConsumerStatefulWidget {
+class MyHome extends StatefulWidget {
   const MyHome({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<MyHome> createState() => _MyHomeState();
+  State<MyHome> createState() => _MyHomeState();
 }
 
-class _MyHomeState extends ConsumerState<MyHome> {
+class _MyHomeState extends State<MyHome> {
   //final _options = ['Home1', 'Home2', 'Home3'];
   //final _actualVal = 'Add Home';
   // ignore: prefer_final_fields

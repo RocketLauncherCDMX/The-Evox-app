@@ -13,12 +13,12 @@ class UserProfile {
   final String email;
   final String photo;
   final String? countryCode;
-  late List<HomeModel>? homes;
-  late List<AuthorizationModel>? authorizations;
-  late List<String>? invites;
+  final List<HomeModel>? homes;
+  final List<AuthorizationModel>? authorizations;
+  final List<String>? invites;
   late DateTime? created;
   late DateTime? modified;
-  late bool? verified;
+  final bool? verified;
   late String? profileDocId;
 
   UserProfile({
